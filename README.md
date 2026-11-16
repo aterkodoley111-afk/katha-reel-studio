@@ -21,6 +21,7 @@ Type `/katha-reel` in a new chat, attach the voiceover MP3 and paste the script.
 | `tools/audio.py` | Synthesized score + SFX from `cues.json`, ducked under the VO |
 | `tools/stills.sh` | Preview stills with subtitles |
 | `tools/build.sh` | Full render → one final MP4 |
+| `renders/` | Finished videos (one MP4 per story) |
 | `stories/<name>/` | Per-video: `script.txt`, `timing.json`, `plan.md`, `scenes.js`, `hinglish.json`, `cues.json` |
 
 ## Quick start
