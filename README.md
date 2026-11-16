@@ -12,7 +12,7 @@ Type `/katha-reel` in a new chat, attach the voiceover MP3 and paste the script.
 |---|---|
 | `WORKFLOW.md` | The full pipeline, approval gates, style lock and hard rules |
 | `LESSONS.md` | What went wrong/right in every past video, read before each new one, appended after |
-| `PREFERENCES.md` | The owner's standing preferences (delivery, series name, look) |
+| `PREFERENCES.md` | The owner's standing preferences (delivery, no series name, never ask about parts) |
 | `engine/chars.js` | Locked character library (Shiva, Bhasmasur, Vishnu, Mohini, …), add new characters here |
 | `engine/fx.js` | Backgrounds & effects (sky, moon, stars, bare tree, hills, cracked earth, crows, clouds, embers, petals, god rays, diya, flame, ash, Kailash, Shivling, temple pillars, crown …) |
 | `engine/render.js` | Frame renderer (stills + raw video), top Hindi key phrase, gold titles, end card |

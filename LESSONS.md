@@ -5,6 +5,9 @@ Each entry: what happened, the fix, and whether it is already applied in the eng
 ## v1 — Bhasmasur (2026-11-16) · 27 scenes · 2:05
 **Owner feedback:** approved plan + stills first time; asked for only one subtitled MP4 (no clean version); asked Claude to add music + SFX (doesn't know how to do it manually).
 
+- **Owner change (after delivery): remove the series name from the video**, both the hook title and the end-card text. ✅ `engine/render.js` now hides it by default (`SHOW_SERIES`), end card is the diya only; re-rendered v1.1.
+- **Owner rule: never ask about parts.** Always render the full video for the whole voiceover + script; no भाग badge, no next-part tease, no series questions. ✅ PREFERENCES/WORKFLOW updated.
+
 Technical
 - ✅ Whisper / HuggingFace downloads are blocked in the sandbox → `tools/align.py` aligns phrases to silence-detected speech chunks (DP on text length). Chunk edges are exact; words inside a chunk are proportional. Write `hinglish.json` **one entry per speech chunk** (split long phrases at their internal pauses) so subtitles stay in sync.
 - ✅ Piping frames from node: must `await 'drain'` on stdout (a sync loop truncated frames and ffmpeg failed).

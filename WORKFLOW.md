@@ -8,13 +8,13 @@ Read `PREFERENCES.md` and **all of `LESSONS.md`** before starting. They override
 3. (Optional) reference reel/images: copy mood, format and craft, not story.
 
 ## Output
-ONE vertical MP4, 1080×1920, 30fps: burned-in Hinglish subtitles + synthesized music + SFX, VO untouched except gain, −16 LUFS (TP −1.5), 2-second end card (glowing diya + series name). No watermark. No clean version.
+ONE vertical MP4, 1080×1920, 30fps: burned-in Hinglish subtitles + synthesized music + SFX, VO untouched except gain, −16 LUFS (TP −1.5), 2-second end card (glowing diya only, no series name). No watermark. No clean version.
 
 ## Pipeline: do it in order, WAIT at the gates
 0. **Setup**: `./tools/setup.sh`. Create `stories/<slug>/`, save `script.txt`, copy the VO to `build/<slug>/vo.mp3`.
 1. **Time the voiceover**: `python3 tools/align.py <vo> stories/<slug>/script.txt stories/<slug>/timing.json`.
    Group phrases into one scene per script line/beat. Scene cut = mid-point of the silence before the line (`cuts` in timing.json). A scene never runs past its line. Dramatic pauses = cuts. End card = last 2 s after the VO ends (`TOTAL = vo_duration + 2`).
-2. **Scene plan → WAIT.** Table per scene: time, line, picture, mood + exact colours, camera move, Hindi key phrase. Also list the character lock (new characters get a written design first). Ask only what is genuinely open (series name if it looks like a series). Save as `stories/<slug>/plan.md`.
+2. **Scene plan → WAIT.** Table per scene: time, line, picture, mood + exact colours, camera move, Hindi key phrase. Also list the character lock (new characters get a written design first). Ask only what is genuinely open. Never ask for a series name or about parts (भाग): always one full video. Save as `stories/<slug>/plan.md`.
 3. **Build scenes**: write `stories/<slug>/scenes.js` (copy the pattern from `stories/bhasmasur/scenes.js`). Reuse `engine/chars.js` characters exactly; add new characters to `engine/chars.js` (same flat style: `shape`, `limb`, `arm` IK, black outlines `LW=7`, gold jewellery, big eyes) and render a character sheet to check them. Add reusable props/backgrounds to `engine/fx.js`.
    Write `hinglish.json` (one entry per speech chunk from `timing.json` → exact pause timing) and `cues.json` (music moods per section + SFX events at visual beats: flashes, impacts, transformations, fire, bells at temple/divine moments).
    Render a grid of one frame per scene mid-point and fix anything broken BEFORE showing stills.
@@ -35,9 +35,9 @@ Locked characters (in `engine/chars.js`):
 
 Mood palettes: night/meditation indigo `#141B3D` + full pale moon + stars + one bare black tree + big empty sky; tension/omens dusky purple `#4A2B4A` + crows + cracked earth + distant hills; anger/curses deep maroon `#4A0E1E`, almost no scenery, figures low, cursed eyes glowing white; warm story ochre/gold `#C89B3C`, temple reds, earth `#6B4226`. Large negative space.
 Light: divine = white flash + halo + god rays; tense = deep shadows/vignette; diyas flicker, embers float, petals fall, clouds drift. **Every scene moves**: camera push/pan/zoom + at least one moving element. Never a frozen still.
-Text: Hindi key phrase only, white, top-centre (Rozha One). Never the full script. Series title gold, large. Name reveals and morals in big gold. Numbers go big on screen (counters, diyas lit one by one). English on-screen text only if the script is English.
+Text: Hindi key phrase only, white, top-centre (Rozha One). Never the full script. No series name anywhere in the video. Name reveals and morals in big gold. Numbers go big on screen (counters, diyas lit one by one). English on-screen text only if the script is English.
 Subtitles: Hinglish, word-by-word, 2–3 words, spoken word gold, Poppins Black 100px at y≈1390 (clear of Instagram's caption bar).
-Hook: every reel opens on the hook line with the series title. Ending: if part of a series, a line that makes viewers wait for the next part; if complete, the moral + end card only.
+Hook: every reel opens on the hook line (no series title). Ending: the script's own last line + end card. Never ask about parts or series, never add a भाग badge or a next-part tease; always one full video for the whole voiceover.
 
 ## Hard rules
 Never change the voiceover. Never add dialogue. Never let a scene run past its line. Never use AI video clips. Never change a character's face, skin, outfit or crown between scenes. No watermark. If a scene feels empty add clouds, speed lines, birds, embers or a sunrise. Never leave dead space without a reason. One-line change requests change only that one thing.

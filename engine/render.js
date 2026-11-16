@@ -5,7 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const { W, H, ease, ramp, clamp } = require('./fx');
 const storyDir = path.resolve(process.argv[2]);
-const { S, SERIES, TOTAL } = require(path.join(storyDir, 'scenes.js'));
+const { S, SERIES, TOTAL, SHOW_SERIES } = require(path.join(storyDir, 'scenes.js'));
+// Owner preference: the series name is NOT shown in the video unless a story sets SHOW_SERIES = true.
+const SHOW = SHOW_SERIES === true;
 const FPS = 30;
 const cv = createCanvas(W, H), ctx = cv.getContext('2d');
 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -29,11 +31,11 @@ function frame(T) {
   ctx.restore();
   // overlays
   const GOLD = '#F5C542';
-  if (sc.title) { const [a, s] = pop(lt, 0); text(SERIES, W / 2, 210, 96, GOLD, a, s); }
+  if (sc.title && SHOW) { const [a, s] = pop(lt, 0); text(SERIES, W / 2, 210, 96, GOLD, a, s); }
   const txt = sc.txtFn ? sc.txtFn(lt) : sc.txt;
-  if (txt) { const at = sc.txtFn ? 0 : (sc.txtAt ?? 0.12); const [a, s] = pop(lt, at); text(txt, W / 2, sc.title ? 350 : 300, 92, '#FFFFFF', a, s); }
+  if (txt) { const at = sc.txtFn ? 0 : (sc.txtAt ?? 0.12); const [a, s] = pop(lt, at); text(txt, W / 2, sc.title && SHOW ? 350 : 300, 92, '#FFFFFF', a, s); }
   if (sc.bigName) { const [a, s] = pop(lt, 0.25); text(sc.bigName, W / 2, sc.bigSize ? 330 : 420, sc.bigSize || 180, GOLD, a, s); }
-  if (sc.endCard) { const [a, s] = pop(lt, 0.2); text(SERIES, W / 2, 1420, 128, GOLD, a, s); }
+  if (sc.endCard && SHOW) { const [a, s] = pop(lt, 0.2); text(SERIES, W / 2, 1420, 128, GOLD, a, s); }
   // fade in from black for first 4 frames of each scene (except scene 1)
   if (sc.s > 0 && lt < 0.13) { ctx.fillStyle = `rgba(0,0,0,${0.6 * (1 - lt / 0.13)})`; ctx.fillRect(0, 0, W, H); }
   if (T > TOTAL - 0.4) { ctx.fillStyle = `rgba(0,0,0,${(T - (TOTAL - 0.4)) / 0.4})`; ctx.fillRect(0, 0, W, H); }
