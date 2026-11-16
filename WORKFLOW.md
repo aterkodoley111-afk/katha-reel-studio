@@ -18,9 +18,9 @@ ONE vertical MP4, 1080×1920, 30fps: burned-in Hinglish subtitles + synthesized 
 3. **Build scenes**: write `stories/<slug>/scenes.js` (copy the pattern from `stories/bhasmasur/scenes.js`). Reuse `engine/chars.js` characters exactly; add new characters to `engine/chars.js` (same flat style: `shape`, `limb`, `arm` IK, black outlines `LW=7`, gold jewellery, big eyes) and render a character sheet to check them. Add reusable props/backgrounds to `engine/fx.js`.
    Write `hinglish.json` (one entry per speech chunk from `timing.json` → exact pause timing) and `cues.json` (music moods per section + SFX events at visual beats: flashes, impacts, transformations, fire, bells at temple/divine moments).
    Render a grid of one frame per scene mid-point and fix anything broken BEFORE showing stills.
-4. **Preview stills → WAIT.** `./tools/stills.sh stories/<slug> "2,10,20,35"` and send `build/stills/prev_*.png` + `preview_sheet.png`.
+4. **Preview stills → WAIT** (unless the owner said "go / don't ask": then check them yourself and continue). `./tools/stills.sh stories/<slug> "2,10,20,35"` and send `build/stills/prev_*.png` + `preview_sheet.png`.
 5. **Full render**: `./tools/build.sh stories/<slug> build/<slug>/vo.mp3 <slug>` → `build/<slug>/<slug>_final.mp4`.
-6. **Check before delivering**: duration, 1080×1920, 30fps, I = −16.0 LUFS; grab ~10 frames across the video into a grid and look at them; measure music bed vs VO per section (target bed 11–16 dB under the voice; boost/cut in `cues.json` or `tools/audio.py` and rebuild audio only if off). Then send the ONE final MP4.
+6. **Check before delivering**: duration, 1080×1920, 30fps, I = −16.0 LUFS; grab ~10 frames across the video into a grid and look at them; measure music bed vs VO per section (target bed 11–16 dB under the voice; set per-section `g` (dB) in `cues.json` sections, then rebuild audio only: audio.py → loudnorm → remux, no re-render). Then send the ONE final MP4.
 7. **Improve (every time)**: ask the owner one short question for feedback. Then append a new entry to `LESSONS.md` (version, story, what broke, what was fixed, owner feedback, ⬜ todos), fix engine issues you can, update `PREFERENCES.md` if they stated a standing preference, commit and push to GitHub. If the workflow itself changed, propose an edit to the `katha-reel` skill.
 
 ## Style lock: the exact look, never drift
@@ -31,6 +31,7 @@ Locked characters (in `engine/chars.js`):
 - **Bhasmasur**: maroon-brown skin `#7E3B2C`, wild black spiky hair, two small ivory horns, fangs, handlebar moustache, gold collar/armbands, red dhoti; boon hand glows red-orange; evil = glowing white eyes.
 - **Vishnu**: deep blue `#3C5FAE`, tall gold kirita crown, yellow pitambar, 4 arms, spinning chakra + shankh, vaijayanti mala, U-tilak.
 - **Mohini**: warm skin `#E8B48C`, pink lehenga `#D8366A` with gold border, magenta choli, orange dupatta, long braid, maang tikka, bindi, jhumkas, nose ring.
+- **Karna / Kunti / Surya / Durvasa / Adhiratha / Radha / baby Karna**: see `engine/chars_mb.js` (locked in v2, Karna story).
 - **Shani** (when needed): dark blue-black skin, gold earrings and necklace, purple-blue dhoti.
 
 Mood palettes: night/meditation indigo `#141B3D` + full pale moon + stars + one bare black tree + big empty sky; tension/omens dusky purple `#4A2B4A` + crows + cracked earth + distant hills; anger/curses deep maroon `#4A0E1E`, almost no scenery, figures low, cursed eyes glowing white; warm story ochre/gold `#C89B3C`, temple reds, earth `#6B4226`. Large negative space.

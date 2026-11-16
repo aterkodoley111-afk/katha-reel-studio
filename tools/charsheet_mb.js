@@ -1,0 +1,18 @@
+const {createCanvas}=require('canvas');const m=require('../engine/chars_mb');const ch=require('../engine/chars');
+const c=createCanvas(3000,1300);const x=c.getContext('2d');x.fillStyle='#C89B3C';x.fillRect(0,0,3000,1300);
+m.karna(x,260,1250,1,{pose:'bow',t:0.3});
+m.kunti(x,760,1250,1,{pose:'hold',baby:true,t:0});
+m.durvasa(x,1180,1250,1,{pose:'bless',t:0});
+m.surya(x,1650,1250,0.95,{pose:'bless',t:0});
+m.adhiratha(x,2150,1250,1,{pose:'lift',t:0});
+m.radha(x,2600,1250,1,{pose:'rest',t:0});
+require('fs').writeFileSync(process.argv[2]+'/sheet.png',c.toBuffer());
+const c2=createCanvas(3000,1300);const y=c2.getContext('2d');y.fillStyle='#141B3D';y.fillRect(0,0,3000,1300);
+m.karna(y,260,1250,1,{pose:'rest',t:0,mouth:'sad',eyes:'open',lookY:1});
+m.karna(y,760,1250,1,{kneel:true,pose:'bowDown',t:0,mouth:'sad',eyes:'closed'});
+m.kunti(y,1250,1250,1,{pose:'plead',eyes:'wide',mouth:'o',t:0});
+m.kunti(y,1700,1250,1,{pose:'heart',mouth:'sad',tear:1,t:0.3});
+m.basket(y,2200,1000,1.1,0,{glow:0.6});
+m.baby(y,2200,500,1.3,0,{});
+ch.setSil('#0b0710');m.adhiratha(y,2650,1250,1,{pose:'point'});ch.setSil(null);
+require('fs').writeFileSync(process.argv[2]+'/sheet2.png',c2.toBuffer());

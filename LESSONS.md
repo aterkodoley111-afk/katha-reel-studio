@@ -28,3 +28,20 @@ Drawing
 Ideas backlog
 - Add characters as stories need them: Hanuman, Ganesha, Krishna, Parvati, Shani, Ravana, Narad, Indra, a sage.
 - Numbers on screen: big gold counters (108 flowers, 9 diyas) per WORKFLOW rules.
+
+## v2 — Karna (2026-11-16) · 37 scenes + end card · 2:29.7
+**Owner feedback:** approved the scene plan, then said "go, I'm going to bed, don't ask me to approve" → skipped the stills gate, self-checked the stills/grid and delivered the final. (Pending: morning feedback.)
+
+- ✅ **Owner rule: if the owner says "go / don't ask", skip the remaining approval gates.** Self-check the scene grid and the 2/10/20/35 stills instead, then deliver. Added to PREFERENCES + WORKFLOW.
+- ✅ New cast in `engine/chars_mb.js` (Mahabharata): `karna` (poses rest/bowDown/bow/raise/fists, `kneel`, `released`), `baby` (wrapped, gold kavach + kundal), `kunti`/`radha` (shared `lady` body: rest/namaste/hold+baby/reach/reachDown/heart/plead/palms), `durvasa`, `surya` (spiky sun halo, same kavach/kundal as Karna), `adhiratha` (also the generic silhouette crowd man: point/whisper/lift/hold). Props: `basket`, `horse`, `chariotWheel`, `bow`, `lotus`, `tear`. Check with `node tools/charsheet_mb.js <outDir>`.
+- ✅ New scenery in `engine/fx_mb.js`: `river` (moving ripples + moon reflection), `lotusPad`, `reeds`, `palace`, `hut`, `crowd` (silhouettes with glowing eyes), `arrow`, `sparks`, `goldThread`, `om`, `haloRing`, `dust`, `flag`, `sunDisk`, `windowArch`.
+- ✅ `chars.js` now exports `arm, eyes, brows, crossedLegs, lerp2, getSil` so new character files can reuse them.
+- ✅ `render.js`: scene options `txtCol` (gold key phrase) and `bigAt` (big gold name appears exactly when spoken, e.g. वसुषेण mid-scene).
+- ✅ Audio: moods `sad` (minor pad + low Sa + slow bansuri) and `war` (fast dhol-like drums); SFX `water`, `arrow`, `clang`, `conch`, `hooves`.
+- ✅ **Music bed was 16–30 dB under the VO on the first mix (divine/magic pads far too quiet).** Added per-section gain `g` (dB) in `cues.json` → `section_gain()` in `audio.py`; measure, set g = −13.5 − measured, rebuild audio only. Final: every section 13–14 dB under the VO. Next time start from the Karna gains (divine ≈ +14…+17, warm/sad ≈ +10…+12, tense ≈ +11, suspense/war ≈ +3…+5).
+- ✅ Palace pillars/beam and hut roof crossed the text band (y 200–420) → moved down to y ≥ 480.
+- ✅ Crowd silhouettes in front of a small character hid her completely → ring of smaller silhouettes BEHIND the hero, only one big silhouette at each edge in front.
+- ⬜ Big gold name (y≈420) sits close to the hut roof line in scene 27; keep big-name scenes' backgrounds clear down to y≈520.
+- ⬜ Karna's bow pose keeps the arrow nocked until `released`; add an actual draw-back animation (string pull) for archery beats.
+- ⬜ Front-facing only still (carried over): Kunti "turning away" was faked with flip + closed eyes.
+- ⬜ Mid-scene measurement script for bed-vs-VO should live in `tools/` (now an inline snippet; see WORKFLOW step 6).

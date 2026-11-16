@@ -149,11 +149,35 @@ def sfx_heartbeat():
     return np.concatenate([drum(60, 40, 0.15, 0.1), np.zeros(int(0.08 * SR)), drum(55, 38, 0.18, 0.1) * 0.7])
 
 
+def sfx_water(d=4.0):
+    t = T(d); n = rng.standard_normal(len(t)); mod = 0.6 + 0.4 * np.sin(2 * np.pi * 0.7 * t) * np.sin(2 * np.pi * 0.23 * t + 1)
+    s = bp(n, 300, 1800) * mod * 0.8 + lp(rng.standard_normal(len(t)), 250) * 0.3
+    bl = np.zeros(len(t)); idx = rng.integers(0, len(t), int(d * 6))
+    for i in idx:
+        b = np.sin(2 * np.pi * np.cumsum(np.linspace(500, 1400, int(0.05 * SR))) / SR) * np.exp(-np.arange(int(0.05 * SR)) / SR / 0.015); bl[i:i + len(b)] += b[:len(bl) - i] * 0.4
+    return (s + bl) * np.minimum(1, t / 0.8) * np.minimum(1, (d - t) / 0.8)
+def sfx_arrow():
+    w = sfx_whoosh(0.35, False) * 1.2; th = drum(180, 90, 0.08, 0.6) * 0.6; out = np.zeros(len(w) + len(th)); out[:len(w)] += w; out[len(w) - 200:len(w) - 200 + len(th)] += th; return out
+def sfx_clang():
+    s = sum(bell(f, 0.5) * a for f, a in [(1240, 1), (1870, 0.7), (2960, 0.5)]); t = T(len(s) / SR)
+    return s + hp(rng.standard_normal(len(t)), 2500) * np.exp(-t / 0.03) * 0.8
+def sfx_conch(d=2.5, f=233.0):
+    t = T(d); vib = 1 + 0.004 * np.sin(2 * np.pi * 5 * t); ph = 2 * np.pi * np.cumsum(f * vib * (1 + 0.03 * np.minimum(1, t / 0.4))) / SR
+    tone = sum(np.sin(k * ph) * a for k, a in [(1, 1), (2, 0.6), (3, 0.45), (4, 0.25), (5, 0.15)]) + 0.1 * bp(rng.standard_normal(len(t)), f, f * 6)
+    return tone * np.minimum(1, t / 0.35) * np.minimum(1, (d - t) / 0.5) * 0.5
+def sfx_hooves(d=2.0):
+    s = np.zeros(int((d + 0.5) * SR)); k = 0.0; i = 0
+    while k < d:
+        h = drum(220, 120, 0.05, 0.8) * (0.8 if i % 3 else 1.0); j = int(k * SR); s[j:j + len(h)] += h[:len(s) - j]; k += [0.09, 0.09, 0.22][i % 3]; i += 1
+    return lp(s, 3000)
+
+
 SFX = {
     'boom': lambda e: sfx_boom(), 'impact': lambda e: sfx_impact(), 'whoosh': lambda e: sfx_whoosh(e.get('d', 1.0), e.get('up', True)),
     'shimmer': lambda e: sfx_shimmer(e.get('d', 2.5)), 'chimes': lambda e: sfx_chimes(e.get('d', 2.0)), 'bell': lambda e: bell(e.get('f', 520), e.get('dec', 3.0)),
     'fire': lambda e: sfx_fire(e.get('d', 3.0)), 'fireburst': lambda e: sfx_fire(e.get('d', 3.5), True), 'riser': lambda e: sfx_riser(e.get('d', 3.0)),
     'crumble': lambda e: sfx_crumble(e.get('d', 2.0)), 'heartbeat': lambda e: sfx_heartbeat(), 'ghungroo': lambda e: ghungroo(),
+    'water': lambda e: sfx_water(e.get('d', 4.0)), 'arrow': lambda e: sfx_arrow(), 'clang': lambda e: sfx_clang(), 'conch': lambda e: sfx_conch(e.get('d', 2.5)), 'hooves': lambda e: sfx_hooves(e.get('d', 2.0)),
 }
 
 # raga phrases (semitones from Sa) for bansuri — Yaman-ish (warm/divine) and Bhairav-ish (calm/sad)
@@ -169,23 +193,27 @@ def music(cues, dur):
     for sec in cues['sections']:
         s, e, m = sec['s'], sec['e'], sec['mood']; d = e - s
         if m in ('climax',): continue
-        tg = {'tense': 0.5, 'suspense': 0.45, 'hook': 0.4, 'flight': 0.45}.get(m, 0.7)
+        tg = {'tense': 0.5, 'suspense': 0.45, 'hook': 0.4, 'flight': 0.45, 'war': 0.45, 'sad': 0.6}.get(m, 0.7)
         k = s
         while k < e - 0.3:
             for f, off in cyc:
                 if k + off < e: mus.add(k + off, ks_pluck(f, 2.6), 0.22 * tg, pan=-0.3 if off < 1 else 0.3)
             k += 2.4
-        if m in ('tense', 'suspense', 'hook', 'flight'):
+        if m in ('tense', 'suspense', 'hook', 'flight', 'war'):
             mus.add(s, pad(d + 1.2, [sa / 2, sa / 2 * 2 ** (1 / 12), sa * 0.75], 0.25), 0.35)
-            beat = 0.75 if m != 'flight' else 0.375
+            beat = 0.75 if m not in ('flight', 'war') else (0.375 if m == 'flight' else 0.25)
             if m == 'suspense':
                 t = s; b = 0.9
                 while t < e: perc.add(t, sfx_heartbeat(), 1.3); t += b; b = max(0.42, b * 0.94)
             else:
                 t = s + 0.0
-                while t < e - 0.1: perc.add(t, drum(85, 45, 0.35, 0.25), 0.45 if m != 'flight' else 0.35); t += beat
-        elif m in ('warm', 'calm', 'end'):
-            mus.add(s, pad(d + 1.2, [sa, sa * 2 ** (4 / 12) if m == 'warm' else sa * 2 ** (3 / 12), sa * 1.5], 0.35), 0.4)
+                i = 0
+                while t < e - 0.1:
+                    if m == 'war': perc.add(t, drum(95 if i % 4 == 0 else 140, 50, 0.3 if i % 4 == 0 else 0.15, 0.4), 0.9 if i % 4 == 0 else 0.45, pan=-0.2 if i % 2 else 0.2)
+                    else: perc.add(t, drum(85, 45, 0.35, 0.25), 0.45 if m != 'flight' else 0.35)
+                    t += beat; i += 1
+        elif m in ('warm', 'calm', 'end', 'sad'):
+            mus.add(s, pad(d + 1.2, [sa, sa * 2 ** (4 / 12) if m == 'warm' else sa * 2 ** (3 / 12), sa * 1.5] + ([sa / 2] if m == 'sad' else []), 0.25 if m == 'sad' else 0.35), 0.55 if m == 'sad' else 0.4)
             phr = PHR_WARM if m == 'warm' else PHR_CALM
             if d > 4:
                 k2 = s + 0.6
@@ -205,6 +233,15 @@ def music(cues, dur):
             mus.add(s + 0.4, bansuri(PHR_WARM + [(s0 + 7.0, d0, n) for s0, d0, n in PHR_WARM[:3]], sa), 0.28)
     L, R = reverb(mus.L + perc.L * 0.6, mus.R + perc.R * 0.6, 0.35, 1.6)
     return L + perc.L * 0.4, R + perc.R * 0.4
+
+
+def section_gain(cues, n):
+    """Per-section music gain in dB (section key 'g'), 0.4 s crossfades. Lets each section hit 11–16 dB under the VO."""
+    g = np.zeros(n); xf = int(0.4 * SR)
+    for sec in cues['sections']:
+        a, b = int(sec['s'] * SR), min(n, int(sec['e'] * SR)); g[a:b] = sec.get('g', 0.0)
+    g = np.convolve(g, np.ones(xf) / xf, mode='same')
+    return 10 ** (g / 20)
 
 
 def sfx_bus(cues, dur):
@@ -231,6 +268,7 @@ if __name__ == '__main__':
     def norm(x, y): r = np.sqrt(np.mean(np.concatenate([x, y]) ** 2)) + 1e-9; return x / r, y / r
     vr = np.sqrt(np.mean(vo[vo != 0] ** 2))
     mL, mR = norm(mL, mR); sL, sR = norm(sL, sR)
+    sg = section_gain(cues, len(mL)); mL = mL * sg; mR = mR * sg
     gm = vr * 10 ** (a.music_db / 20); gs = vr * 10 ** (a.sfx_db / 20)
     L = vo + mL * gm * duck + sL * gs; R = vo + mR * gm * duck + sR * gs
     n = int(a.dur * SR); L, R = L[:n], R[:n]

@@ -444,4 +444,4 @@ function mohini(ctx, x, y, s, o = {}) {
   return { L: [x + hl[0] * s * fx, y + hl[1] * s], R: [x + hr[0] * s * fx, y + hr[1] * s], head: [x, y + hy * s] };
 }
 
-module.exports = { shiva, bhasmasur, vishnu, mohini, shape, ell, limb, handGlow, halo, setSil: (c) => { SIL = c; }, OUT, LW, DANCE };
+module.exports = { shiva, bhasmasur, vishnu, mohini, shape, ell, limb, handGlow, halo, arm, eyes, brows, crossedLegs, lerp2, setSil: (c) => { SIL = c; }, getSil: () => SIL, OUT, LW, DANCE };
