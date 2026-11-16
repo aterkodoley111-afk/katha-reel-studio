@@ -1,0 +1,13 @@
+const {createCanvas}=require('canvas');const ch=require('../engine/chars');
+const c=createCanvas(2160,1300);const x=c.getContext('2d');x.fillStyle='#C89B3C';x.fillRect(0,0,2160,1300);
+ch.shiva(x,280,1250,1,{halo:1,pose:'bless',trishul:true,t:0});
+ch.bhasmasur(x,780,1250,1,{pose:'raise',glow:0.8,t:0});
+ch.vishnu(x,1300,1250,0.95,{halo:1,t:0.3});
+ch.mohini(x,1800,1250,1,{pose:'head',t:0});
+require('fs').writeFileSync('sheet.png',c.toBuffer());
+const c2=createCanvas(2160,1100);const y=c2.getContext('2d');y.fillStyle='#141B3D';y.fillRect(0,0,2160,1100);
+ch.shiva(y,300,1050,1,{seated:true,eyes:'closed',pose:'meditate',thirdEye:1,halo:1});
+ch.bhasmasur(y,800,1050,1,{seated:true,pose:'seatnam',eyes:'closed',mouth:'calm'});
+ch.bhasmasur(y,1300,1050,0.9,{pose:'head',eyes:'glow',mouth:'scream',glow:1});
+ch.mohini(y,1800,1050,0.9,{pose:'dance',dstep:0,sway:30});
+require('fs').writeFileSync('sheet2.png',c2.toBuffer());
