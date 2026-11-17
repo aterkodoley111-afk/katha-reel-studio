@@ -1,4 +1,5 @@
 // Mahabharata cast — locked designs (Karna story, v2). Same flat style as chars.js:
+const MO = require('./motion');
 // feet at y=0, head centre hy≈-840, shoulders ≈ -695, black outlines LW=7, gold jewellery, big eyes.
 const ch = require('./chars');
 const { shape, ell, limb, handGlow, halo, arm, eyes, brows, crossedLegs, lerp2, OUT, LW } = ch;
@@ -120,14 +121,14 @@ function karna(ctx, x, y, s, o = {}) {
   shape(ctx, GOLD, () => ctx.rect(-100, -522 + dy, 200, 24), 5);
   shape(ctx, KAR.skin, () => ctx.rect(-26, hy + 56, 52, 50), 0);
   // arms
-  const P = {
+  const P = MO.poseOf({
     rest: [[-160, -430], [160, -430]],
     bowDown: [[-175, -440], [160, -430]],
     bow: [[-400, -770], [-30, -760]],
     raise: [[-160, -430], [200, -1010]],
     fists: [[-200, -760], [200, -760]],
     reachUp: [[-160, -430], [230, -930]],
-  }[pose] || [[-160, -430], [160, -430]];
+  }, pose, o, [[-160, -430], [160, -430]]);
   const pref = { bow: ['down', 'down'], fists: ['down', 'down'], raise: ['out', 'out'], reachUp: ['out', 'down'] }[pose] || ['out', 'out'];
   const SL = [-120, -695 + dy], SR = [120, -695 + dy];
   const hl = arm(ctx, SL, [P[0][0], P[0][1] + dy], KAR, pref[0])[2];
@@ -215,7 +216,7 @@ function lady(ctx, x, y, s, o, P) {
   shape(ctx, P.skin, () => ctx.rect(-20, hy + 55, 40, 45), 0);
   shape(ctx, GOLD, () => { ctx.moveTo(-48, -728); ctx.quadraticCurveTo(0, -668, 48, -728); ctx.quadraticCurveTo(0, -692, -48, -728); ctx.closePath(); }, 4);
   // arms
-  let A = {
+  let A = MO.poseOf({
     rest: [[-118, -460], [118, -460]],
     namaste: [[-8, -660], [8, -660]],
     hold: [[-40, -590], [70, -560]],
@@ -227,7 +228,7 @@ function lady(ctx, x, y, s, o, P) {
     face: [[-60, -840], [60, -840]],
     lift: [[-80, -560], [80, -560]],
     belly: [[-30, -470], [50, -500]],
-  }[pose] || [[-118, -460], [118, -460]];
+  }, pose, o, [[-118, -460], [118, -460]]);
   const pref = { namaste: ['down', 'down'], hold: ['down', 'down'], plead: ['down', 'down'], palms: ['down', 'down'], heart: ['out', 'down'], face: ['down', 'down'], lift: ['down', 'down'], belly: ['out', 'out'] }[pose] || ['out', 'out'];
   if (o.baby) baby(ctx, 15, -615, 0.62, t, Object.assign({ glow: 0.5 }, o.babyOpt || {}));
   const hl = pose === 'face' ? null : arm(ctx, [-84, -698], A[0], P, pref[0], { noHand: pose === 'namaste' })[2];
@@ -286,7 +287,7 @@ function durvasa(ctx, x, y, s, o = {}) {
   // rudraksha
   if (!SIL()) { ctx.fillStyle = '#5B2E12'; for (let i = 0; i <= 18; i++) { const a = i / 18; ctx.beginPath(); ctx.arc(-64 + a * 128, -705 + Math.sin(a * Math.PI) * 170, 8, 0, 7); ctx.fill(); } }
   shape(ctx, DUR.skin, () => ctx.rect(-22, hy + 52, 44, 48), 0);
-  const P = { bless: [[-170, -520], [180, -840]], rest: [[-170, -520], [140, -440]], angry: [[-170, -520], [250, -760]] }[pose];
+  const P = MO.poseOf({ bless: [[-170, -520], [180, -840]], rest: [[-170, -520], [140, -440]], angry: [[-170, -520], [250, -760]] }, pose, o, null);
   const hl = arm(ctx, [-100, -690], P[0], DUR, 'down', {})[2];
   // head + white hair/beard
   shape(ctx, '#F2EFE6', () => ctx.ellipse(0, hy - 120, 52, 58, 0, 0, 7));
@@ -332,7 +333,7 @@ function surya(ctx, x, y, s, o = {}) {
   kavach(ctx, tor, 0, -610, t, 0);
   shape(ctx, GOLD, () => ctx.rect(-96, -522, 192, 24), 5);
   shape(ctx, SUR.skin, () => ctx.rect(-25, hy + 55, 50, 50), 0);
-  const P = { bless: [[-210, -760], [180, -800]], rest: [[-150, -440], [150, -440]], give: [[-150, -440], [260, -640]] }[pose];
+  const P = MO.poseOf({ bless: [[-210, -760], [180, -800]], rest: [[-150, -440], [150, -440]], give: [[-150, -440], [260, -640]] }, pose, o, null);
   const hl = arm(ctx, [-114, -695], P[0], SUR, 'down')[2];
   // head
   for (const sx of [-1, 1]) ell(ctx, sx * 64, hy + 5, 14, 22, SUR.skin, 5);
@@ -374,7 +375,7 @@ function adhiratha(ctx, x, y, s, o = {}) {
   shape(ctx, '#C62828', () => ctx.rect(-112, -520, 224, 30), 5);
   if (!SIL()) { ctx.strokeStyle = '#B8AE96'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, -720); ctx.lineTo(0, -600); ctx.stroke(); }
   shape(ctx, ADH.skin, () => ctx.rect(-24, hy + 52, 48, 50), 0);
-  const P = { rest: [[-150, -440], [150, -440]], lift: [[-175, -500], [175, -500]], hold: [[-40, -590], [70, -560]], point: [[-150, -440], [330, -820]], whisper: [[-150, -440], [70, -820]] }[pose];
+  const P = MO.poseOf({ rest: [[-150, -440], [150, -440]], lift: [[-175, -500], [175, -500]], hold: [[-40, -590], [70, -560]], point: [[-150, -440], [330, -820]], whisper: [[-150, -440], [70, -820]] }, pose, o, null);
   const pref = { lift: ['out', 'out'], hold: ['down', 'down'], whisper: ['out', 'down'] }[pose] || ['out', 'out'];
   const cfg = Object.assign({}, ADH, { skin: ADH.skin });
   if (o.baby) baby(ctx, 15, -615, 0.62, t, Object.assign({ glow: 0.5 }, o.babyOpt || {}));
@@ -429,4 +430,4 @@ function chariotWheel(ctx, x, y, r, t, rot = 0) {
   ctx.restore();
 }
 
-module.exports = { lady, mouthLine, nose, GOLD, GOLD2, karna, baby, kunti, radha, durvasa, surya, adhiratha, basket, horse, chariotWheel, bow, sunHalo, kundal, lotus, tear };
+module.exports = { lady, mouthLine, nose, GOLD, GOLD2, karna: MO.alive(karna), baby, kunti: MO.alive(kunti), radha: MO.alive(radha), durvasa: MO.alive(durvasa), surya: MO.alive(surya), adhiratha: MO.alive(adhiratha), basket, horse, chariotWheel, bow, sunHalo, kundal, lotus, tear };

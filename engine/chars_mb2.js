@@ -1,4 +1,5 @@
 // Mahabharata cast part 2 — locked designs (Ashwatthama story, v3). Same flat style as chars.js / chars_mb.js:
+const MO = require('./motion');
 // feet at y=0, head centre hy≈-850, shoulders ≈ -695, black outlines LW=7, gold jewellery, big eyes.
 const ch = require('./chars');
 const { shape, ell, limb, handGlow, halo, arm, eyes, brows, OUT, LW } = ch;
@@ -66,7 +67,9 @@ function warrior(ctx, x, y, s, o, P) {
   const t = o.t || 0, pose = o.pose || 'rest';
   const kneel = !!o.kneel, dy = kneel ? 200 : 0, cursed = !!o.cursed;
   ctx.save(); ctx.translate(x, y); ctx.scale(o.flip ? -s : s, s);
-  if (o.lean) ctx.rotate(o.lean);
+  const WK = (o.walk || o.run) && !o.kneel ? MO.walkCycle(o.t || 0, o) : null;
+  if (WK) ctx.translate(0, WK.bob);
+  if (o.lean || o.run) ctx.rotate((o.lean || 0) + (o.run ? 0.07 : 0));
   const hy = -850 + dy + (o.bowHead ? 18 : 0);
   if (o.halo) halo(ctx, 0, hy - 30, 175, t, o.halo);
   // hair behind
@@ -82,10 +85,18 @@ function warrior(ctx, x, y, s, o, P) {
     ell(ctx, 195, -30, 48, 22, P.skin);
     shape(ctx, dhCol, () => { ctx.moveTo(-105, -505 + dy); ctx.lineTo(105, -505 + dy); ctx.lineTo(150, -330 + dy); ctx.quadraticCurveTo(0, -300 + dy, -140, -330 + dy); ctx.closePath(); });
   } else {
-    const st = o.stance || 0, wk = o.walk ? Math.sin(t * 5) * 40 : 0;
-    limb(ctx, [[-46, -470], [-52 - st - wk, -70]], 58, P.skin); limb(ctx, [[46, -470], [52 + st + wk, -70]], 58, P.skin);
-    if (!cursed) { limb(ctx, [[-52 - st - wk, -98], [-52 - st - wk, -84]], 64, GOLD, 'butt'); limb(ctx, [[52 + st + wk, -98], [52 + st + wk, -84]], 64, GOLD, 'butt'); }
-    ell(ctx, -66 - st - wk, -35, 48, 22, P.skin); ell(ctx, 66 + st + wk, -35, 48, 22, P.skin);
+    const st = o.stance || 0;
+    if (WK) {
+      WK.legs.forEach(([h, k, f], i) => {
+        limb(ctx, [h, k, f], 58, P.skin);
+        if (!cursed) limb(ctx, [[f[0], f[1] - 28], [f[0], f[1] - 14]], 64, GOLD, 'butt');
+        ell(ctx, f[0] + (i ? 14 : -14), f[1] + 35, 48, 22, P.skin);
+      });
+    } else {
+      limb(ctx, [[-46, -470], [-52 - st, -70]], 58, P.skin); limb(ctx, [[46, -470], [52 + st, -70]], 58, P.skin);
+      if (!cursed) { limb(ctx, [[-52 - st, -98], [-52 - st, -84]], 64, GOLD, 'butt'); limb(ctx, [[52 + st, -98], [52 + st, -84]], 64, GOLD, 'butt'); }
+      ell(ctx, -66 - st, -35, 48, 22, P.skin); ell(ctx, 66 + st, -35, 48, 22, P.skin);
+    }
     const dh = cursed
       ? () => { ctx.moveTo(-105, -510); ctx.lineTo(105, -510); ctx.lineTo(125, -300); ctx.lineTo(90, -330); ctx.lineTo(70, -270); ctx.lineTo(30, -310); ctx.lineTo(-10, -250); ctx.lineTo(-50, -300); ctx.lineTo(-90, -260); ctx.lineTo(-125, -300); ctx.closePath(); }
       : () => { ctx.moveTo(-105, -510); ctx.lineTo(105, -510); ctx.lineTo(128 + st * 0.5, -250); ctx.quadraticCurveTo(0, -215, -128 - st * 0.5, -250); ctx.closePath(); };
@@ -116,11 +127,17 @@ function warrior(ctx, x, y, s, o, P) {
   }
   shape(ctx, P.skin, () => ctx.rect(-26, hy + 56, 52, 50), 0);
   // arms
-  const A = POSES[pose] || POSES.rest, pref = PREF[pose] || ['out', 'out'];
+  const A = MO.poseOf(POSES, pose, o, POSES.rest), pref = PREF[pose] || ['out', 'out'];
   const SL = [-120, -695 + dy], SR = [120, -695 + dy];
-  const aL = A[0], aR = (o.handR) || A[1];
+  let aL = A[0], aR = (o.handR) || A[1];
+  if (WK && ['rest', 'hunch', 'swordDown', 'bowDown'].includes(pose)) {
+    const sw = WK.swing * (o.run ? 70 : 40);
+    aL = [aL[0] + sw * 0.4, aL[1] - Math.max(0, sw)]; aR = [aR[0] - sw * 0.4, aR[1] - Math.max(0, -sw)];
+  }
   const hl = arm(ctx, SL, [aL[0], aL[1] + dy], P, pref[0])[2];
-  // head
+  // head (tilts about the neck: o.tilt + small idle nod)
+  const tilt = (o.tilt || 0) + (o.t != null && !o.still ? 0.025 * Math.sin(o.t * 1.3 + x * 0.01) : 0) + (WK ? 0.02 * WK.swing : 0);
+  ctx.save(); ctx.translate(0, hy + 90); ctx.rotate(tilt); ctx.translate(0, -(hy + 90));
   for (const sx of [-1, 1]) ell(ctx, sx * 64, hy + 5, 14, 22, P.skin, 5);
   ell(ctx, 0, hy, 66, 78, P.skin);
   if (P.knot) {
@@ -160,8 +177,10 @@ function warrior(ctx, x, y, s, o, P) {
   mouthLine(ctx, 0, hy + 56, o.mouth || 'firm', 14);
   if (o.mouth === 'grit' && !SIL()) { shape(ctx, '#F4F1E8', () => ctx.rect(-18, hy + 50, 36, 12), 3); }
   for (const sx of [-1, 1]) { if (!SIL()) shape(ctx, GOLD, () => ctx.arc(sx * 66, hy + 36, 9, 0, 7), 3); }
+  ctx.restore();
   const hr = arm(ctx, SR, [aR[0], aR[1] + dy], P, pref[1])[2];
-  if (o.sword) sword(ctx, hr[0], hr[1], pose === 'sword' ? 0.15 : pose === 'swordDown' ? 2.7 : 0.3, 1);
+  const SA = { sword: 0.15, swordDown: 2.7 };
+  if (o.sword) sword(ctx, hr[0], hr[1], o.from && o.k != null && o.k < 1 ? MO.lerp(SA[o.from] ?? 0.3, SA[pose] ?? 0.3, MO.ease(MO.clamp(o.k))) : (SA[pose] ?? 0.3), 1);
   if (pose === 'bow') bow(ctx, hl[0], hl[1], 1, !o.released, hr, o.released);
   else if (pose === 'bowDown') bow(ctx, hl[0], hl[1], 0.85, false);
   ctx.restore();
@@ -189,7 +208,7 @@ function drona(ctx, x, y, s, o = {}) {
   shape(ctx, '#C9771E', () => ctx.rect(-98, -528, 196, 22), 5);
   if (!SIL()) { ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-100, -690); ctx.lineTo(80, -520); ctx.stroke(); ctx.fillStyle = '#5B2E12'; for (let i = 0; i <= 18; i++) { const a = i / 18; ctx.beginPath(); ctx.arc(-62 + a * 124, -705 + Math.sin(a * Math.PI) * 160, 8, 0, 7); ctx.fill(); } }
   shape(ctx, DRO.skin, () => ctx.rect(-22, hy + 52, 44, 48), 0);
-  const P = { rest: [[-170, -470], [150, -440]], bless: [[-170, -470], [o.handTo ? o.handTo[0] : 260, o.handTo ? o.handTo[1] : -700]], bow: [[-175, -460], [150, -440]], fall: [[-200, -900], [220, -900]] }[pose] || [[-170, -470], [150, -440]];
+  const P = MO.poseOf({ rest: [[-170, -470], [150, -440]], bless: [[-170, -470], [o.handTo ? o.handTo[0] : 260, o.handTo ? o.handTo[1] : -700]], bow: [[-175, -460], [150, -440]], fall: [[-200, -900], [220, -900]] }, pose, o, [[-170, -470], [150, -440]]);
   const hl = arm(ctx, [-100, -690], P[0], DRO, pose === 'fall' ? 'out' : 'out')[2];
   // head + grey hair, top-knot, beard
   for (const sx of [-1, 1]) ell(ctx, sx * 60, hy + 4, 12, 20, DRO.skin, 5);
@@ -248,7 +267,7 @@ function krishna(ctx, x, y, s, o = {}) {
   if (!SIL()) for (let i = 0; i <= 22; i++) { const a = i / 22; shape(ctx, fc[i % 4], () => ctx.arc(-78 + a * 156, -705 + Math.sin(a * Math.PI) * 240, 10, 0, 7), 3); }
   shape(ctx, GOLD, () => { ctx.moveTo(-68, -712); ctx.quadraticCurveTo(0, -640, 68, -712); ctx.quadraticCurveTo(0, -680, -68, -712); ctx.closePath(); }, 5);
   shape(ctx, KRI.skin, () => ctx.rect(-24, hy + 52, 48, 50), 0);
-  const P = { chakra: [[-150, -450], [190, -1010]], point: [[-150, -450], [340, -790]], bless: [[-150, -450], [175, -790]], shield: [[-260, -760], [260, -760]] }[pose] || [[-150, -450], [190, -1010]];
+  const P = MO.poseOf({ chakra: [[-150, -450], [190, -1010]], point: [[-150, -450], [340, -790]], bless: [[-150, -450], [175, -790]], shield: [[-260, -760], [260, -760]] }, pose, o, [[-150, -450], [190, -1010]]);
   const pref = { chakra: ['out', 'out'], point: ['out', 'out'], bless: ['out', 'down'], shield: ['down', 'down'] }[pose] || ['out', 'out'];
   const hl = arm(ctx, [-106, -690], P[0], KRI, pref[0])[2];
   // head
@@ -281,4 +300,4 @@ const uttara = (ctx, x, y, s, o = {}) => lady(ctx, x, y, s, Object.assign({ pose
 // baby Parikshit = wrapped baby, no kavach/kundal
 const parikshit = (ctx, x, y, s, t, o = {}) => baby(ctx, x, y, s, t, Object.assign({ kavach: false }, o));
 
-module.exports = { ashwatthama, arjuna, drona, krishna, uttara, parikshit, mani, sword, chakra, fireAura, peacockFeather };
+module.exports = { ashwatthama: MO.alive(ashwatthama), arjuna: MO.alive(arjuna), drona: MO.alive(drona), krishna: MO.alive(krishna), uttara: MO.alive(uttara), parikshit, mani, sword, chakra, fireAura, peacockFeather };

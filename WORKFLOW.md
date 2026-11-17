@@ -49,7 +49,15 @@ Hook: every reel opens on the hook line (no series title). Ending: the script's 
 5. **Composition**: faces above y≈1250 and clear of the subtitle band; top band y 200–520 free for text; foreground/midground/background depth (hills + ground + props); vignette.
 6. **Colour story**: palette follows the mood table; contrast between consecutive scenes so cuts feel alive.
 7. **Sensitive moments** (death, killing): suggest, never show: shadows, diyas going out, spirit rising in light.
-8. **Every video upgrades the engine**: at least one new reusable pose/expression/effect or one ⬜ todo from LESSONS fixed (priorities: blinking + mouth movement while the VO speaks, 3/4-profile heads, crossfades on calm cuts, bow draw-back animation).
+8. **Character movement (owner priority, v3.1 motion layer `engine/motion.js`)**: never let a character pose-snap or stand frozen.
+   - Pose changes are **tweened**: pass `from: '<old pose>', k: MO.tween(lt, at, 0.35)` (≈0.3–0.5 s, small overshoot built in). Use for every gesture: raising a sword, pointing, hands to head, namaste.
+   - Idle life is automatic for every `(ctx,x,y,s,o)` character when `o.t` is passed: breathing + slow sway (`o.still` to switch off). **Always pass `t: lt`.**
+   - Auto-blink is automatic in `eyes()` (every ~3–4 s; `noBlink` to stop).
+   - Walking/running: `walk: true` / `run: true` (front-view step cycle: knee lift, body bob, arm swing, head nod; run leans forward). Move the x position too, at a speed matching the step.
+   - Head: `tilt` (radians) for reactions (warrior body); add head tilt to other bodies when they are touched.
+   - Characters do NOT lip-sync: the VO is a narrator and there is no dialogue.
+   - Check with `node tools/motiontest.js build/sheets` after any body change.
+9. **Every video upgrades the engine**: at least one new reusable pose/expression/effect or one ⬜ todo from LESSONS fixed.
 
 ## Hard rules
 Never change the voiceover. Never add dialogue. Never let a scene run past its line. Never use AI video clips. Never change a character's face, skin, outfit or crown between scenes. No watermark. If a scene feels empty add clouds, speed lines, birds, embers or a sunrise. Never leave dead space without a reason. One-line change requests change only that one thing.

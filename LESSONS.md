@@ -63,3 +63,10 @@ Ideas backlog
 - ⬜ `throw` pose left arm bends awkwardly; refine.
 - ⬜ Kneeling warrior dhoti has no gold border/outline.
 - ✅ **Owner standing preference (after v3): no end card by default**, and "make the animation as good as you can" → new *Animation quality bar* in WORKFLOW.md + PREFERENCES; every video must add at least one engine upgrade. Next upgrade candidates: ⬜ auto-blink + mouth flap while VO chunks are spoken (timing.json), ⬜ 3/4-profile heads, ⬜ crossfades on calm cuts, ⬜ bow draw-back.
+
+## v3.1 — Motion upgrade (2026-11-17, no video) · owner: "character movement needs to be fixed, make it as good as you can"
+- ✅ `engine/motion.js`: `poseOf` (pose tweening with `from`/`k` + slight overshoot; all pose tables in chars.js / chars_mb.js / chars_mb2.js now go through it), `tween(lt, at, dur)`, `blinking()` (auto-blink inside `eyes()`), `alive()` idle wrapper (breathing + sway) on every exported `(ctx,x,y,s,o)` character, `walkCycle()`.
+- ✅ Warrior body (Ashwatthama/Arjuna): front-view walk/run cycle (knee lift, no leg scissoring; first try crossed the legs → fixed), body bob, run lean, arm swing, head tilt + idle nod, sword angle tweens with the arm.
+- ✅ `tools/motiontest.js` sheet (walk, run, sword-raise tween, blink count). Ashwatthama scenes + old cast sheets re-checked: nothing broke.
+- ✅ Dropped the "mouth flap with VO" idea: narrator only, characters never speak.
+- ⬜ Next motion work: walk cycle + head tilt for the other bodies (karna, lady, krishna, drona, gods); 3/4-profile heads; hair/cloth follow-through on fast moves; crossfades on calm cuts; bow draw-back.

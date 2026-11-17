@@ -1,4 +1,5 @@
 // Locked character designs — every scene calls these same functions.
+const MO = require('./motion');
 const OUT = '#140c0c', LW = 7;
 let SIL = null; // silhouette colour when set
 const C = (col) => (SIL ? SIL : col);
@@ -78,9 +79,10 @@ function halo(ctx, x, y, r, t, a = 1) {
 // ---------- faces ----------
 function eyes(ctx, cx, cy, sep, rx, ry, o, iris = '#1a1010') {
   const look = (o.look || 0) * rx * 0.35, lookY = (o.lookY || 0) * ry * 0.3;
+  const blink = !SIL && !o.noBlink && o.eyes !== 'glow' && o.eyes !== 'closed' && MO.blinking(o.t, cx + cy);
   for (const sx of [-1, 1]) {
     const x = cx + sx * sep;
-    if (o.eyes === 'closed') {
+    if (o.eyes === 'closed' || blink) {
       ctx.beginPath(); ctx.arc(x, cy - ry * 0.4, rx * 0.95, 0.15 * Math.PI, 0.85 * Math.PI);
       ctx.strokeStyle = OUT; ctx.lineWidth = 5; ctx.stroke(); continue;
     }
@@ -181,14 +183,14 @@ function shiva(ctx, x, y, s, o = {}) {
   shape(ctx, SHIVA.skin, () => ctx.rect(-26, hy + 50, 52, 50), 0);
   // arms
   let hands = {};
-  const P = {
+  const P = MO.poseOf({
     rest: [[-150, -430], [150, -430]],
     bless: [[-150, -430], [175, -800]],
     raise: [[-150, -430], [215, -900]],
     alarm: [[-215, -820], [215, -820]],
     meditate: [[-150, -380], [150, -380]],
     fly: [[-260, -800], [235, -560]],
-  }[pose] || [[-150, -430], [150, -430]];
+  }, pose, o, [[-150, -430], [150, -430]]);
   const pref = { bless: ['out', 'down'], raise: ['out', 'out'], alarm: ['down', 'down'], fly: ['down', 'out'] }[pose] || ['out', 'out'];
   if (o.trishul) {
     const tx = -165, ty = -430 + dy;
@@ -267,7 +269,7 @@ function bhasmasur(ctx, x, y, s, o = {}) {
   const pose = o.pose || 'rest';
   let P, pref = ['out', 'out'];
   if (pose === 'dance') { const k = DANCE[o.dstep % DANCE.length]; P = k; }
-  else P = {
+  else P = MO.poseOf({
     rest: [[-160, -430], [160, -430]],
     namaste: [[-6, -620], [6, -620]],
     raise: [[-160, -430], [240, -1010]],
@@ -276,7 +278,7 @@ function bhasmasur(ctx, x, y, s, o = {}) {
     head: [[-160, -430], [70, -955]],
     fist: [[-200, -760], [200, -760]],
     seatnam: [[-6, -620], [6, -620]],
-  }[pose];
+  }, pose, o, null);
   if (pose === 'head') pref = ['out', 'out'];
   if (pose === 'namaste' || pose === 'seatnam') pref = ['down', 'down'];
   if (pose === 'fist') pref = ['down', 'down'];
@@ -415,7 +417,7 @@ function mohini(ctx, x, y, s, o = {}) {
   shape(ctx, '#E8B21E', () => { ctx.moveTo(-50, -730); ctx.quadraticCurveTo(0, -660, 50, -730); ctx.quadraticCurveTo(0, -690, -50, -730); ctx.closePath(); }, 4);
   // arms
   const pose = o.pose || 'rest';
-  let P = { rest: [[-120, -460], [120, -460]], grace: [[-200, -760], [125, -470]], head: [[-120, -460], [50, -960]] }[pose];
+  let P = MO.poseOf({ rest: [[-120, -460], [120, -460]], grace: [[-200, -760], [125, -470]], head: [[-120, -460], [50, -960]] }, pose, o, null);
   let pref = ['out', 'out'];
   if (pose === 'dance') P = DANCE[o.dstep % DANCE.length].map(p => [p[0] * 0.85, -700 + (p[1] + 690) * 0.85]);
   if (pose === 'head') pref = ['out', 'out'];
@@ -444,4 +446,4 @@ function mohini(ctx, x, y, s, o = {}) {
   return { L: [x + hl[0] * s * fx, y + hl[1] * s], R: [x + hr[0] * s * fx, y + hr[1] * s], head: [x, y + hy * s] };
 }
 
-module.exports = { shiva, bhasmasur, vishnu, mohini, shape, ell, limb, handGlow, halo, arm, eyes, brows, crossedLegs, lerp2, setSil: (c) => { SIL = c; }, getSil: () => SIL, OUT, LW, DANCE };
+module.exports = { shiva: MO.alive(shiva), bhasmasur: MO.alive(bhasmasur), vishnu: MO.alive(vishnu), mohini: MO.alive(mohini), shape, ell, limb, handGlow, halo, arm, eyes, brows, crossedLegs, lerp2, setSil: (c) => { SIL = c; }, getSil: () => SIL, OUT, LW, DANCE };
