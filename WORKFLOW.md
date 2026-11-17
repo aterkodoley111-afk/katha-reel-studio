@@ -8,19 +8,20 @@ Read `PREFERENCES.md` and **all of `LESSONS.md`** before starting. They override
 3. (Optional) reference reel/images: copy mood, format and craft, not story.
 
 ## Output
-ONE vertical MP4, 1080×1920, 30fps: burned-in Hinglish subtitles + synthesized music + SFX, VO untouched except gain, −16 LUFS (TP −1.5), 2-second end card (glowing diya only, no series name). No watermark. No clean version.
+ONE vertical MP4, 1080×1920, 30fps: burned-in Hinglish subtitles + synthesized music + SFX, VO untouched except gain, −16 LUFS (TP −1.5). **No end card**: the video ends with the last scene just after the final word. No series name. No watermark. No clean version.
 
 ## Pipeline: do it in order, WAIT at the gates
 0. **Setup**: `./tools/setup.sh`. Create `stories/<slug>/`, save `script.txt`, copy the VO to `build/<slug>/vo.mp3`.
 1. **Time the voiceover**: `python3 tools/align.py <vo> stories/<slug>/script.txt stories/<slug>/timing.json`.
-   Group phrases into one scene per script line/beat. Scene cut = mid-point of the silence before the line (`cuts` in timing.json). A scene never runs past its line. Dramatic pauses = cuts. End card = last 2 s after the VO ends (`TOTAL = vo_duration + 2`).
+   Group phrases into one scene per script line/beat. Scene cut = mid-point of the silence before the line (`cuts` in timing.json). A scene never runs past its line. Dramatic pauses = cuts. No end card: `TOTAL = vo_duration + ~0.6` (render.js fades the last 0.4 s).
 2. **Scene plan → WAIT.** Table per scene: time, line, picture, mood + exact colours, camera move, Hindi key phrase. Also list the character lock (new characters get a written design first). Ask only what is genuinely open. Never ask for a series name or about parts (भाग): always one full video. Save as `stories/<slug>/plan.md`.
 3. **Build scenes**: write `stories/<slug>/scenes.js` (copy the pattern from `stories/bhasmasur/scenes.js`). Reuse `engine/chars.js` characters exactly; add new characters to `engine/chars.js` (same flat style: `shape`, `limb`, `arm` IK, black outlines `LW=7`, gold jewellery, big eyes) and render a character sheet to check them. Add reusable props/backgrounds to `engine/fx.js`.
    Write `hinglish.json` (one entry per speech chunk from `timing.json` → exact pause timing) and `cues.json` (music moods per section + SFX events at visual beats: flashes, impacts, transformations, fire, bells at temple/divine moments).
    Render a grid of one frame per scene mid-point and fix anything broken BEFORE showing stills.
+   Also run `./tools/grid.sh stories/<slug>` and check every scene against the Animation quality bar below.
 4. **Preview stills → WAIT** (unless the owner said "go / don't ask": then check them yourself and continue). `./tools/stills.sh stories/<slug> "2,10,20,35"` and send `build/stills/prev_*.png` + `preview_sheet.png`.
 5. **Full render**: `./tools/build.sh stories/<slug> build/<slug>/vo.mp3 <slug>` → `build/<slug>/<slug>_final.mp4`.
-6. **Check before delivering**: duration, 1080×1920, 30fps, I = −16.0 LUFS; grab ~10 frames across the video into a grid and look at them; measure music bed vs VO per section (target bed 11–16 dB under the voice; set per-section `g` (dB) in `cues.json` sections, then rebuild audio only: audio.py → loudnorm → remux, no re-render). Then send the ONE final MP4.
+6. **Check before delivering**: duration, 1080×1920, 30fps, I = −16.0 LUFS; grab ~12 frames across the final MP4 into a grid and look at them (projectiles/effects must never land on a face); `python3 tools/bedcheck.py <vo> <cues> <TOTAL> --fix` (bed 11–16 dB under the voice), then `./tools/audio_only.sh <story> <vo> <slug>` (no re-render). Then send the ONE final MP4.
 7. **Improve (every time)**: ask the owner one short question for feedback. Then append a new entry to `LESSONS.md` (version, story, what broke, what was fixed, owner feedback, ⬜ todos), fix engine issues you can, update `PREFERENCES.md` if they stated a standing preference, commit and push to GitHub. If the workflow itself changed, propose an edit to the `katha-reel` skill.
 
 ## Style lock: the exact look, never drift
@@ -38,7 +39,17 @@ Mood palettes: night/meditation indigo `#141B3D` + full pale moon + stars + one 
 Light: divine = white flash + halo + god rays; tense = deep shadows/vignette; diyas flicker, embers float, petals fall, clouds drift. **Every scene moves**: camera push/pan/zoom + at least one moving element. Never a frozen still.
 Text: Hindi key phrase only, white, top-centre (Rozha One). Never the full script. No series name anywhere in the video. Name reveals and morals in big gold. Numbers go big on screen (counters, diyas lit one by one). English on-screen text only if the script is English.
 Subtitles: Hinglish, word-by-word, 2–3 words, spoken word gold, Poppins Black 100px at y≈1390 (clear of Instagram's caption bar).
-Hook: every reel opens on the hook line (no series title). Ending: the script's own last line + end card. Never ask about parts or series, never add a भाग badge or a next-part tease; always one full video for the whole voiceover.
+Hook: every reel opens on the hook line (no series title). Ending: the script's own last line, no end card. Never ask about parts or series, never add a भाग badge or a next-part tease; always one full video for the whole voiceover.
+
+## Animation quality bar (owner: "make the animation as good as you can"): check every scene
+1. **Motion in layers**: camera move + a moving character (walk, breathe, hair/cloth sway, look change) + a moving background element (smoke, fog, embers, clouds, crows, petals). Never only a camera zoom.
+2. **Beats on the word**: names, numbers and reveals pop exactly when spoken (`bigAt`, `bigFn` counters). Long scenes (>4 s) get a second beat: change of pose/expression/key phrase (`txtFn`) or a new event halfway.
+3. **Impact grammar**: every hit/reveal = anticipation (glow builds) → flash + shake + sparks + SFX → aftermath (debris, smoke, embers).
+4. **Acting**: expressions change with the line (eyes wide/narrow/closed/glow, brows, mouth); characters react to each other (look direction).
+5. **Composition**: faces above y≈1250 and clear of the subtitle band; top band y 200–520 free for text; foreground/midground/background depth (hills + ground + props); vignette.
+6. **Colour story**: palette follows the mood table; contrast between consecutive scenes so cuts feel alive.
+7. **Sensitive moments** (death, killing): suggest, never show: shadows, diyas going out, spirit rising in light.
+8. **Every video upgrades the engine**: at least one new reusable pose/expression/effect or one ⬜ todo from LESSONS fixed (priorities: blinking + mouth movement while the VO speaks, 3/4-profile heads, crossfades on calm cuts, bow draw-back animation).
 
 ## Hard rules
 Never change the voiceover. Never add dialogue. Never let a scene run past its line. Never use AI video clips. Never change a character's face, skin, outfit or crown between scenes. No watermark. If a scene feels empty add clouds, speed lines, birds, embers or a sunrise. Never leave dead space without a reason. One-line change requests change only that one thing.

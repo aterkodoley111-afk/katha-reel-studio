@@ -62,3 +62,4 @@ Ideas backlog
 - ⬜ Silhouettes always get glowing white eyes (`eyes()` under SIL). Good for villains, wrong for a neutral silhouette; add an option to turn it off.
 - ⬜ `throw` pose left arm bends awkwardly; refine.
 - ⬜ Kneeling warrior dhoti has no gold border/outline.
+- ✅ **Owner standing preference (after v3): no end card by default**, and "make the animation as good as you can" → new *Animation quality bar* in WORKFLOW.md + PREFERENCES; every video must add at least one engine upgrade. Next upgrade candidates: ⬜ auto-blink + mouth flap while VO chunks are spoken (timing.json), ⬜ 3/4-profile heads, ⬜ crossfades on calm cuts, ⬜ bow draw-back.
