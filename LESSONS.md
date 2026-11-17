@@ -45,3 +45,20 @@ Ideas backlog
 - ⬜ Karna's bow pose keeps the arrow nocked until `released`; add an actual draw-back animation (string pull) for archery beats.
 - ⬜ Front-facing only still (carried over): Kunti "turning away" was faked with flip + closed eyes.
 - ⬜ Mid-scene measurement script for bed-vs-VO should live in `tools/` (now an inline snippet; see WORKFLOW step 6).
+
+## v3 — Ashwatthama (2026-11-17) · 20 scenes, NO end card · 1:15.3
+**Owner feedback:** approved the plan with one change: "remove the end card, keep it only till scene 20" + "make it as engaging as you can". Approved stills, said "Render". (Pending: feedback on the final.)
+
+- ✅ **Owner request (this video): no end card.** `TOTAL = VO + 0.6 s` breath, last scene runs to the end with the 0.4 s fade. ⬜ Ask next time whether "no end card" is now a standing preference (not yet in PREFERENCES).
+- ✅ New cast in `engine/chars_mb2.js` (check with `node tools/charsheet_mb2.js <outDir>`): `ashwatthama` (top-knot, iron-grey armour, cyan **mani** on forehead; options `mani:0` → wound mark, `cursed` → torn grey cloth, loose hair, stubble; `walk`, `kneel`, `sword`), `arjuna` (gold kirita, teal dhoti, Gandiva via `bow`), both on a shared `warrior()` body with poses rest/fists/sword/swordDown/throw/point/bow/bowDown/head/forehead/kneelLow/hunch. `drona` (grey beard/top-knot, white dhoti + saffron uttariya, bow; `bless` with `handTo`), `krishna` (2 arms, peacock feather, pitambar; poses chakra/point/bless; `stern`), `uttara` (lady body, plum sari, `belly` + `wombGlow`), `parikshit` (baby with `kavach:false`). Props `mani`, `sword`, `chakra`, `fireAura`, `peacockFeather`.
+- ✅ `chars_mb.js`: exports `lady, mouthLine, nose, GOLD`; lady pose `belly` + `o.belly/o.wombGlow`; baby `kavach:false`.
+- ✅ `fx_mb.js`: `astra` (glowing divine-weapon streak), `qpt` (bezier point for curving astras), `lightning`, `smoke`, `fog`, `stuckArrow`, `fireRing(...part 'back'|'front')` (draw back flames, figure, front flames), `tent`, `sleeper`.
+- ✅ `render.js`: `bigFn` (animated big gold text, e.g. counting **3000 साल**) and `bigY` (big text can sit under the white key phrase at y≈470–480).
+- ✅ New tools: `tools/grid.sh <story>` (one frame per scene → `build/grid/grid.png`), `tools/bedcheck.py <vo> <cues> <dur> [--fix]` (bed-vs-VO per section; `--fix` sets g so each section lands at −13.5 dB), `tools/audio_only.sh` (rebuild audio + remux, no re-render). Closes the v2 todo.
+- ✅ Audio start gains worked for most sections; fixes needed: hook +, short tense +, divine −6 (divine at 15 was too loud here), final sad −1. Final: all sections 11–16 dB under VO.
+- ✅ Violent beat handled without showing it: sword shadow on the tent wall + diyas going out one by one + faceless blanket sleepers.
+- ✅ Caught in the frame check: the curving astra ended ON Uttara's face → stop threatening projectiles above the head (P2 y≈860).
+- Engagement tricks used (keep using): name pops exactly on the spoken word, live counters, shakes on every impact, flash cuts on reveals, two-beat key phrases (`txtFn`) inside long scenes, moving silhouettes, astra clash.
+- ⬜ Silhouettes always get glowing white eyes (`eyes()` under SIL). Good for villains, wrong for a neutral silhouette; add an option to turn it off.
+- ⬜ `throw` pose left arm bends awkwardly; refine.
+- ⬜ Kneeling warrior dhoti has no gold border/outline.

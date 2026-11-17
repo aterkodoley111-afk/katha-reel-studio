@@ -170,16 +170,16 @@ function baby(ctx, x, y, s, t, o = {}) {
   if (!SIL() && (o.glow ?? 0.6) > 0) handGlow(ctx, 0, 0, 260, (o.glow ?? 0.6) * (0.8 + 0.2 * Math.sin(t * 3)), '255,200,60');
   shape(ctx, '#F6F1E4', () => { ctx.ellipse(10, 10, 150, 72, -0.08, 0, 7); });
   if (!SIL()) { ctx.strokeStyle = '#D8CFBA'; ctx.lineWidth = 4; for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(-40 + i * 50, -45); ctx.quadraticCurveTo(-10 + i * 50, 10, -50 + i * 50, 62); ctx.stroke(); } }
-  // tiny kavach on chest
-  shape(ctx, GOLD, () => { ctx.ellipse(-5, -6, 46, 30, 0, 0, 7); }, 5);
-  if (!SIL()) { ctx.strokeStyle = '#B07D0A'; ctx.lineWidth = 3; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.arc(-5 + i * 16, -6, 8, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke(); } shape(ctx, '#FF9800', () => ctx.arc(-5, -6, 10, 0, 7), 3); }
+  // tiny kavach on chest (Karna only; o.kavach === false for other babies)
+  if (o.kavach !== false) shape(ctx, GOLD, () => { ctx.ellipse(-5, -6, 46, 30, 0, 0, 7); }, 5);
+  if (o.kavach !== false && !SIL()) { ctx.strokeStyle = '#B07D0A'; ctx.lineWidth = 3; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.arc(-5 + i * 16, -6, 8, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke(); } shape(ctx, '#FF9800', () => ctx.arc(-5, -6, 10, 0, 7), 3); }
   // head
   const hx = -140, hy2 = -18;
   ell(ctx, hx, hy2, 56, 54, '#D9A06A');
   shape(ctx, '#15100E', () => { ctx.moveTo(hx - 54, hy2 - 8); ctx.quadraticCurveTo(hx - 50, hy2 - 62, hx, hy2 - 58); ctx.quadraticCurveTo(hx + 40, hy2 - 58, hx + 50, hy2 - 22); ctx.quadraticCurveTo(hx + 10, hy2 - 40, hx - 54, hy2 - 8); ctx.closePath(); }, 4);
   eyes(ctx, hx, hy2 + 4, 18, 11, 7, { eyes: o.eyes || 'closed' });
   if (!SIL()) { ctx.strokeStyle = OUT; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(hx, hy2 + 22, 8, 0.2 * Math.PI, 0.8 * Math.PI); ctx.stroke(); ctx.fillStyle = 'rgba(230,110,110,0.45)'; ctx.beginPath(); ctx.arc(hx - 30, hy2 + 16, 9, 0, 7); ctx.arc(hx + 30, hy2 + 16, 9, 0, 7); ctx.fill(); }
-  kundal(ctx, hx + 6, hy2 + 46, 10, t, o.kundalGlow ?? 0.7);
+  if (o.kavach !== false) kundal(ctx, hx + 6, hy2 + 46, 10, t, o.kundalGlow ?? 0.7);
   ctx.restore();
 }
 
@@ -211,6 +211,7 @@ function lady(ctx, x, y, s, o, P) {
   const pl = () => { ctx.moveTo(-92, -712); ctx.lineTo(-40, -722); ctx.lineTo(90, -540); ctx.lineTo(84, -505); ctx.lineTo(30, -515); ctx.lineTo(-86, -640); ctx.closePath(); };
   shape(ctx, P.sari, pl);
   if (!SIL()) { ctx.strokeStyle = P.border; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(-40, -722); ctx.lineTo(90, -540); ctx.stroke(); ctx.beginPath(); pl(); ctx.strokeStyle = OUT; ctx.lineWidth = LW; ctx.stroke(); }
+  if (o.belly) { shape(ctx, P.sari, () => ctx.ellipse(0, -490, 100, 88, 0, 0, 7)); if (!SIL() && o.wombGlow) handGlow(ctx, 0, -490, 230, o.wombGlow * (0.8 + 0.2 * Math.sin(t * 3)), '255,200,60'); }
   shape(ctx, P.skin, () => ctx.rect(-20, hy + 55, 40, 45), 0);
   shape(ctx, GOLD, () => { ctx.moveTo(-48, -728); ctx.quadraticCurveTo(0, -668, 48, -728); ctx.quadraticCurveTo(0, -692, -48, -728); ctx.closePath(); }, 4);
   // arms
@@ -225,8 +226,9 @@ function lady(ctx, x, y, s, o, P) {
     palms: [[-150, -600], [150, -600]],
     face: [[-60, -840], [60, -840]],
     lift: [[-80, -560], [80, -560]],
+    belly: [[-30, -470], [50, -500]],
   }[pose] || [[-118, -460], [118, -460]];
-  const pref = { namaste: ['down', 'down'], hold: ['down', 'down'], plead: ['down', 'down'], palms: ['down', 'down'], heart: ['out', 'down'], face: ['down', 'down'], lift: ['down', 'down'] }[pose] || ['out', 'out'];
+  const pref = { namaste: ['down', 'down'], hold: ['down', 'down'], plead: ['down', 'down'], palms: ['down', 'down'], heart: ['out', 'down'], face: ['down', 'down'], lift: ['down', 'down'], belly: ['out', 'out'] }[pose] || ['out', 'out'];
   if (o.baby) baby(ctx, 15, -615, 0.62, t, Object.assign({ glow: 0.5 }, o.babyOpt || {}));
   const hl = pose === 'face' ? null : arm(ctx, [-84, -698], A[0], P, pref[0], { noHand: pose === 'namaste' })[2];
   // head
@@ -427,4 +429,4 @@ function chariotWheel(ctx, x, y, r, t, rot = 0) {
   ctx.restore();
 }
 
-module.exports = { karna, baby, kunti, radha, durvasa, surya, adhiratha, basket, horse, chariotWheel, bow, sunHalo, kundal, lotus, tear };
+module.exports = { lady, mouthLine, nose, GOLD, GOLD2, karna, baby, kunti, radha, durvasa, surya, adhiratha, basket, horse, chariotWheel, bow, sunHalo, kundal, lotus, tear };
